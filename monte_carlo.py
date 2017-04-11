@@ -4,6 +4,7 @@ import numpy as np
 from environment import (
   step, draw_card, TERMINAL_STATE, STICK_ACTION, HIT_ACTION
 )
+from helpers import plot_Q
 
 N_0 = 100
 
@@ -61,3 +62,4 @@ def monte_carlo():
 if __name__ == "__main__":
   print("running monte carlo")
   Q = monte_carlo()
+  plot_Q(Q)
