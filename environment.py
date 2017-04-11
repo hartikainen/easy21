@@ -10,8 +10,9 @@ P = { 'red': 1/3, 'black': 2/3 }
 def draw_card(color=None):
   value = np.random.choice(DECK)
   if (color is None):
-    color = np.random.choice(P.keys(), p=P.values())
-  return {'value': value, 'color': color}
+    colors, probs = zip(*P.items())
+    color = np.random.choice(colors, p=probs)
+  return { 'value': value, 'color': color }
 
 
 def bust(x):
