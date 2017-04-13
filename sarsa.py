@@ -1,7 +1,7 @@
 from collections import Counter, defaultdict
 
-from utils import get_step_size, policy_wrapper
-from helpers import MSE, plot_Q
+from utils import get_step_size, policy_wrapper, MSE
+from vis import plot_Q, plot_MSE
 from environment import step, draw_card, TERMINAL_STATE, ACTIONS
 from monte_carlo import monte_carlo
 
@@ -11,7 +11,7 @@ GAMMA = 1.0
 NUM_EPISODES = 1000
 
 
-def sarsa(l=0):
+def sarsa(lmbd=0):
   Q = defaultdict(lambda: Counter({HIT: 0, STICK: 0}))
   N = defaultdict(lambda: Counter({HIT: 0, STICK: 0}))
   policy = policy_wrapper(Q, N)
@@ -19,23 +19,24 @@ def sarsa(l=0):
   for episode in range(1, NUM_EPISODES+1):
     E = defaultdict(lambda: Counter({HIT: 0, STICK: 0}))
     state = (draw_card()['value'], draw_card()['value'])
-    action = policy(state)
 
     while state != TERMINAL_STATE:
-      N[state][action] += 1
+      action = policy(state)
       state_, reward = step(state, action)
       action_ = policy(state_)
       delta = reward + GAMMA * Q[state_][action_] - Q[state][action]
+
+      N[state][action] += 1
       E[state][action] += 1
 
       for s in E:
         for a in E[s]:
           if N[s][a] == 0: continue
-          Q[s][a] += get_step_size(N[s][a]) * delta * E[s][a]
-          E[s][a] *= l
+          alpha = get_step_size(N[s][a])
+          Q[s][a] += alpha * delta * E[s][a]
+          E[s][a] *= GAMMA * lmbd
 
-      state, action = state_, action_
-      policy = policy_wrapper(Q, N)
+      state = state_
 
   return Q
 
@@ -43,8 +44,11 @@ if __name__ == "__main__":
   print("running sarsa")
   Q_ = monte_carlo()
 
-  print("lambda, MSE")
+  errors = {}
   for i in range(11):
     l = 0.1 * i
     Q = sarsa(l)
-    print("{:^6}, {:^4}".format(l, MSE(Q, Q_)))
+    errors[l] = MSE(Q, Q_)
+
+  errors_table = list(zip(*errors.items()))
+  plot_MSE(errors_table)

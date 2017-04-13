@@ -2,6 +2,15 @@ import random
 from environment import ACTIONS
 
 
+def MSE(A, B):
+  mse = sum(
+    (A[s][a] - B[s][a]) ** 2
+    for s in set(A.keys()) | set(B.keys())
+    for a in ['HIT', 'STICK']
+  ) / (len(A.keys()) + len(B.keys()))
+  return mse
+
+
 def get_step_size(N_s_a):
   return 1.0/N_s_a
 

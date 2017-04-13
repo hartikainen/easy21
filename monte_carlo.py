@@ -1,7 +1,7 @@
 from collections import Counter, defaultdict
 
 from utils import get_step_size, policy_wrapper
-from helpers import plot_Q
+from vis import plot_Q
 from environment import step, draw_card, TERMINAL_STATE, ACTIONS
 
 
