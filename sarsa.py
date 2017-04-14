@@ -38,6 +38,10 @@ def sarsa(lmbd=0):
 
       state = state_
 
+    if lmbd == 0 or lmbd == 1:
+      # TODO: save the episodes
+      pass
+
   return Q
 
 if __name__ == "__main__":
@@ -46,9 +50,9 @@ if __name__ == "__main__":
 
   errors = {}
   for i in range(11):
-    l = 0.1 * i
-    Q = sarsa(l)
-    errors[l] = MSE(Q, Q_)
+    lmbd = 0.1 * i
+    Q = sarsa(lmbd)
+    errors[lmbd] = MSE(Q, Q_)
 
   errors_table = list(zip(*errors.items()))
   plot_MSE(errors_table)

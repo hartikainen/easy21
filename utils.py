@@ -7,7 +7,7 @@ def MSE(A, B):
     (A[s][a] - B[s][a]) ** 2
     for s in set(A.keys()) | set(B.keys())
     for a in ['HIT', 'STICK']
-  ) / (len(A.keys()) + len(B.keys()))
+  ) / (len(set(A.keys()) | set(B.keys())))
   return mse
 
 
