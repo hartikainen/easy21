@@ -1,12 +1,12 @@
 from collections import Counter, defaultdict
+import random
 
-from utils import get_step_size, policy_wrapper, MSE
+from utils import get_step_size, policy_wrapper, MSE, dot, elementwise_mul
 from vis import plot_Q, plot_MSE
 from environment import step, draw_card, TERMINAL_STATE, ACTIONS
 from monte_carlo import monte_carlo
 
 GAMMA = 1
-THETA = None
 EPSILON = 0.05
 ALPHA = 0.01
 
@@ -27,28 +27,54 @@ def phi(s, a):
     [int(a in i) for i in range(CUBOID_INTERVALS['action'])]
   )
 
+
+def get_Q(params):
+  Q = defaultdict(lambda: Counter({ HIT: 0, STICK: 0 }))
+  for dealer in range(10):
+    for player in range(21):
+      s = (dealer, player)
+      for a in ACTIONS:
+        feats = phi(s, a)
+        Q[s][a] = dot(feats, theta)
+
+  return Q
+
+
 NUM_EPISODES = 1000
 def linear_function_approximation(lmbd):
-  Q = defaultdict(lambda: Counter({ HIT: random.random() - 0.5,
-                                    STICK: random.random() - 0.5 }))
-  N = defaultdict(lambda: Counter({ HIT: random.random() - 0.5,
-                                    STICK: random.random() - 0.5 }))
-  policy = policy_wrapper(Q, N)
+  N = Counter({ f: 0 for f in range(3*6*2) })
+  policy = None # TODO: need policy
   params = theta(3*6*2) # TODO: use variables for these
 
   for episode in range(1, NUM_EPISODES+1):
-    E = defaultdict(lambda: Counter({ HIT: 0, STICK: 0 }))
+    E = Counter({ f: 0 for f in range(3*6*2) })
     state = (draw_card()['value'], draw_card()['value'])
 
     while state != TERMINAL_STATE:
-      action = policy(state)
+      action = policy(state) # TODO: need policy
       state_, reward = step(state, action)
-      action_ = policy(state_)
 
       feats = phi(state, action)
-      feats_ = phi(state_, action_)
+      for f in feats:
+        if f == 1: E[f] += 1
 
-      # delta = reward + GAMMA * dot(feats_, theta) - dot(feats, theta)
+      feats_, action_ = max(
+        ((phi(_state, a), a) for a in ACTIONS),
+        key=lambda x: dot(x[0], params)
+      )
+
+      delta = reward + GAMMA * dot(params, feats_) - dot(params, feats)
+
+      for i in xrange(feats):
+        N[i] += 1
+        E *= GAMMA * lmbd
+
+      dw = elementwise_mul(phi, E, ALPHA, delta)
+      for i in xrange(len(dw)): params[i] += dw[i]
+
+      state = state_
+
+    Q = get_Q(params)
 
 if __name__ == "__main__":
   print("running linear function approximation")
@@ -57,7 +83,7 @@ if __name__ == "__main__":
   errors = {}
   for i in range(11):
     lmbd = 0.1 * i
-    Q = sarsa(lmbd)
+    Q = linear_function_approximation(lmbd)
     errors[lmbd] = MSE(Q, Q_)
 
   errors_table = list(zip(*errors.items()))

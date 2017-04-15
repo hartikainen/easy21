@@ -1,5 +1,20 @@
 import random
+from functools import reduce
+from operator import mul
+from collections import Iterable
+
 from environment import ACTIONS
+
+
+def elementwise_mul(*args):
+  scalars = tuple( a for a in args if not isinstance(a, Iterable) )
+  iterables = tuple( a for a in args if isinstance(a, Iterable) )
+  result = [reduce(mul, I+scalars, 1) for I in zip(*iterables)]
+
+
+def dot(x, y):
+  assert len(x) == len(y)
+  return sum(a * b for a,b in zip(x,y))
 
 
 def MSE(A, B):
