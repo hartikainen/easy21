@@ -15,19 +15,19 @@ def create_surf_plot(X, Y, Z, fig_idx=1):
   fig = plt.figure(fig_idx)
   ax = fig.add_subplot(111, projection="3d")
 
-  # X, Y = np.meshgrid(X, Y)
-  surf = ax.plot_trisurf(X, Y, Z, cmap=cm.coolwarm)
+  surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
+                         linewidth=0, antialiased=False)
 
   plt.show()
 
 
+from environment import DEALER_RANGE, PLAYER_RANGE
 def plot_Q(Q):
-  data = sorted([
-    (dealer, player, max(action_value.values()))
-    for (dealer, player), action_value in Q.items()
-  ], key=lambda d: (d[0], d[1]))
-  X, Y, Z = zip(*data)
-  create_surf_plot(X, Y, Z)
+  V = np.max(Q, axis=2)
+  nx, ny = V.shape
+  X, Y = np.mgrid[DEALER_RANGE, PLAYER_RANGE]
+
+  create_surf_plot(X, Y, V)
 
 
 def plot_MSE(data, figure_idx=0):

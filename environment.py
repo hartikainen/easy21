@@ -1,20 +1,23 @@
 from __future__ import division
-import random
+import numpy as np
 
 DECK = range(1, 11)
-ACTIONS = ( HIT, STICK ) = ( "HIT", "STICK" )
+ACTIONS = (HIT, STICK) = (0, 1)
+
+DEALER_RANGE = range(1, 11)
+PLAYER_RANGE = range(1, 22)
+STATE_SPACE_SHAPE = (len(DEALER_RANGE), len(PLAYER_RANGE), len(ACTIONS))
+
 TERMINAL_STATE = "TERMINAL"
-COEFFS = { 'red': -1, 'black': 1 }
-P = { 'red': 1/3, 'black': 2/3 }
+COLOR_PROBS = { 'red': 1/3, 'black': 2/3 }
+COLOR_COEFFS = { 'red': -1, 'black': 1 }
 
 
 def draw_card(color=None):
-  value = random.choice(DECK)
+  value = np.random.choice(DECK)
   if (color is None):
-    if random.random() < P["red"]:
-      color = "red"
-    else:
-      color = "black"
+    colors, probs = zip(*COLOR_PROBS.items())
+    color = np.random.choice(colors, p=probs)
   return { 'value': value, 'color': color }
 
 
@@ -22,32 +25,32 @@ def bust(x):
   return (x < 1 or 21 < x)
 
 
-def step(s, a):
+def step(state, action):
   """ Step function
 
   Inputs:
-  - s: state (dealer's first card 1-10 and the player's sum 1-21)
-  - a: action (hit or stick)
+  - state: dealer's first card 1-10 and the player's sum 1-21
+  - action: hit or stick
 
   Returns:
   - next_state: a sample of the next state (which may be terminal if the
     game is finished)
   - reward
   """
-  dealer, player = s
+  dealer, player = state
 
-  if a == HIT:
+  if action == HIT:
     card = draw_card()
-    player += COEFFS[card['color']] * card['value']
+    player += COLOR_COEFFS[card['color']] * card['value']
 
     if bust(player):
       next_state, reward = TERMINAL_STATE, -1
     else:
       next_state, reward = (dealer, player), 0
-  elif a == STICK:
+  elif action == STICK:
     while 0 < dealer < 17:
       card = draw_card()
-      dealer += COEFFS[card['color']] * card['value']
+      dealer += COLOR_COEFFS[card['color']] * card['value']
 
     next_state = TERMINAL_STATE
     if bust(dealer):
