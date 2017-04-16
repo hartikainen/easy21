@@ -2,7 +2,7 @@ from __future__ import division
 import random
 
 DECK = range(1, 11)
-ACTIONS = STICK, HIT = "STICK", "HIT"
+ACTIONS = ( HIT, STICK ) = ( "HIT", "STICK" )
 TERMINAL_STATE = "TERMINAL"
 COEFFS = { 'red': -1, 'black': 1 }
 P = { 'red': 1/3, 'black': 2/3 }
