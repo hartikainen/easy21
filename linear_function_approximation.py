@@ -1,7 +1,7 @@
 from collections import Counter, defaultdict
 import numpy as np
 
-from utils import get_step_size, policy_wrapper, MSE
+from utils import get_step_size, policy_wrapper, mse
 from vis import plot_Q, plot_MSE
 from environment import step, draw_card, TERMINAL_STATE, ACTIONS
 from monte_carlo import monte_carlo

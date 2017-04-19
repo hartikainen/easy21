@@ -19,8 +19,17 @@ def get_step_size(N):
 
 
 N_0 = 100
-def get_epsilon(state_N):
-  return N_0 / (N_0 + state_N)
+def get_epsilon(N):
+  return N_0 / (N_0 + N)
+
+
+def epsilon_greedy_policy(Q, N):
+  epsilon = get_epsilon(np.sum(N[dealer-1, player-1, :]))
+  if np.random.rand() < (1 - epsilon):
+    action = np.argmax(Q[dealer-1, player-1, :])
+  else:
+    action = np.random.choice(ACTIONS)
+
 
 
 def policy_wrapper(Q, N):
