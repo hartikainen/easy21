@@ -33,8 +33,13 @@ AGENTS = {
 }
 
 
-def dump_Q(Q):
-  with open("./Q_opt.pkl", "wb") as f:
+Q_DUMP_BASE_NAME = "Q_dump"
+def dump_Q(Q, args):
+  filename = ("./{}_{}_lambda_{}_gamma_{}_episodes_{}.pkl"
+              "".format(Q_DUMP_BASE_NAME,
+                        args.agent, args.lmbd, args.gamma, args.num_episodes))
+
+  with open(filename, "wb") as f:
     pickle.dump(Q, f)
 
 
@@ -54,7 +59,7 @@ def main(args):
     plot_Q(Q)
 
   if args.dump_q:
-    dump_Q(Q)
+    dump_Q(Q, args)
 
 
 if __name__ == "__main__":

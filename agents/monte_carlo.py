@@ -1,10 +1,8 @@
 import numpy as np
 
-from utils import get_epsilon
+from utils import epsilon_greedy_policy, mse
 from vis import plot_Q
-from environment import (
-  Easy21Env, TERMINAL_STATE, ACTIONS, STATE_SPACE_SHAPE
-)
+from environment import Easy21Env, TERMINAL_STATE, STATE_SPACE_SHAPE
 
 
 class MonteCarloAgent:
@@ -29,20 +27,13 @@ class MonteCarloAgent:
       E = [] # experience from the episode
 
       while state != TERMINAL_STATE:
-        dealer, player = state
+        action = epsilon_greedy_policy(Q, N, state)
+        state_, reward = env.step(action)
 
-        # epsilon greedy policy
-        epsilon = get_epsilon(np.sum(N[dealer-1, player-1, :]))
-        if np.random.rand() < (1 - epsilon):
-          action = np.argmax(Q[dealer-1, player-1, :])
-        else:
-          action = np.random.choice(ACTIONS)
+        E.append([state, action, reward])
+        state = state_
 
-        state, reward = env.step(action)
-
-        E.append([dealer, player, action, reward])
-
-      for dealer, player, action, reward in E:
+      for (dealer, player), action, reward in E:
         idx = dealer-1, player-1, action
         N[idx] += 1
         alpha = 1.0 / N[idx]
