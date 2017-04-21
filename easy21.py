@@ -9,11 +9,11 @@ parser = argparse.ArgumentParser(
   description="Simple Reinforcement Learning Environment")
 
 parser.add_argument("-a", "--agent", default="mc",
-                    choices=['mc', 'sarsa', 'fa'],
+                    choices=['mc', 'sarsa', 'lfa'],
                     help=("Agent Type: "
                           "mc (monte carlo), "
                           "sarsa, "
-                          "fa (function approximation)"))
+                          "lfa (linear function approximation)"))
 parser.add_argument("--num-episodes", default=1000, type=int,
                     help="Number of episodes")
 parser.add_argument("-v", "--verbose", default=False, type=bool,
@@ -29,7 +29,7 @@ parser.add_argument("--dump-q", default=False, type=bool,
 AGENTS = {
   "mc": MonteCarloAgent,
   "sarsa": SarsaAgent,
-  "fa": FunctionApproximationAgent
+  "lfa": FunctionApproximationAgent
 }
 
 
