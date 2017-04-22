@@ -55,9 +55,11 @@ class Easy21Env:
     self.reset()
 
 
-  def reset(self):
-    self.player = draw_card()['value']
-    self.dealer = draw_card()['value']
+  def reset(self, dealer=None, player=None):
+    if dealer is None: dealer = draw_card()['value']
+    self.dealer = dealer
+    if player is None: player = draw_card()['value']
+    self.player = player
 
 
   def observe(self):

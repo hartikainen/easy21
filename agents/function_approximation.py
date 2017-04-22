@@ -42,7 +42,7 @@ def phi(s, a=None):
     if a in ai:
       features[:, :, i] = state_features
 
-  return features
+  return features.astype(int)
 
 
 def policy(s, w):
