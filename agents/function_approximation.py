@@ -23,10 +23,10 @@ CUBOID_INTERVALS = {
 
 FEATS_SHAPE = tuple(len(s) for s in CUBOID_INTERVALS.values())
 
-def phi(s, a=None):
-  if s == TERMINAL_STATE: return 0
+def phi(state, action=None):
+  if state == TERMINAL_STATE: return 0
 
-  dealer, player = s
+  dealer, player = state
 
   state_features = np.array([
     (di[0] <= dealer <= di[1]) and (pi[0] <= player <= pi[1])
@@ -34,44 +34,14 @@ def phi(s, a=None):
     for pi in CUBOID_INTERVALS['player']
   ]).astype(int).reshape(FEATS_SHAPE[:2])
 
-  if a is None:
-    return state_features
+  if action is None: return state_features
 
   features = np.zeros(FEATS_SHAPE)
   for i, ai in enumerate(CUBOID_INTERVALS['action']):
-    if a in ai:
+    if action in ai:
       features[:, :, i] = state_features
 
   return features.astype(int)
-
-
-def policy(s, w):
-  if s == TERMINAL_STATE:
-    return 0.0, None
-
-  if np.random.rand() < (1 - EPSILON):
-    Q, action = max(
-      # same as dotproduct in our case
-      ((np.sum(phi(s, a) * w), a) for a in ACTIONS),
-      key=lambda x: x[0]
-    )
-  else:
-    action = np.random.choice(ACTIONS)
-    Q = np.sum(phi(s, action) * w)
-  return Q, action
-
-
-def expand_Q(w):
-  Q = np.zeros(STATE_SPACE_SHAPE)
-
-  for dealer in DEALER_RANGE:
-    for player in PLAYER_RANGE:
-      for ai, action in enumerate(ACTIONS):
-        state = (dealer, player)
-        feats = phi(state, action)
-        Q[dealer-1, player-1][action] = np.sum(feats * w)
-
-  return Q
 
 
 class FunctionApproximationAgent:
@@ -81,46 +51,78 @@ class FunctionApproximationAgent:
                **kwargs):
     self.num_episodes = num_episodes
     self.env = env
+
     self.gamma = gamma
     self.lmbd = lmbd
-    self.epislon = epsilon
+    self.epsilon = epsilon
     self.alpha = alpha
+
     self.reset()
 
 
   def reset(self):
     self.Q = np.zeros(STATE_SPACE_SHAPE)
+    self.w  = (np.random.rand(*FEATS_SHAPE) - 0.05) * 0.01
+
+
+  def policy(self, state):
+    if state == TERMINAL_STATE:
+      return 0.0, None
+
+    if np.random.rand() < (1 - self.epsilon):
+      Q, action = max(
+        # same as dotproduct in our case
+        ((np.sum(phi(state, a) * self.w), a) for a in ACTIONS),
+        key=lambda x: x[0]
+      )
+    else:
+      action = np.random.choice(ACTIONS)
+      Q = np.sum(phi(state, action) * self.w)
+
+    return Q, action
+
+
+  def expand_Q(self):
+    Q = np.zeros(STATE_SPACE_SHAPE)
+
+    for dealer in DEALER_RANGE:
+      for player in PLAYER_RANGE:
+        for action in ACTIONS:
+          state = (dealer, player)
+          feats = phi(state, action)
+          Q[dealer-1, player-1][action] = np.sum(feats * self.w)
+
+    return Q
 
 
   def learn(self):
     env = self.env
     N = np.zeros(STATE_SPACE_SHAPE)
-    w  = (np.random.rand(*FEATS_SHAPE) - 0.05) * 0.01
 
     for episode in range(1, self.num_episodes+1):
       E = np.zeros(FEATS_SHAPE)
       state1 = env.observe()
 
       while state1 != TERMINAL_STATE:
-        Qhat1, action1 = policy(state1, w)
+        Qhat1, action1 = self.policy(state1)
         state2, reward = env.step(action1)
-        Qhat2, action2 = policy(state2, w)
+        Qhat2, action2 = self.policy(state2)
 
         feats1 = phi(state1, action1)
         feats2 = phi(state2, action2)
 
         N[np.where(feats1 == 1)] += 1
 
-        Qhat1, Qhat2 = feats1 * w, feats2 * w
+        # Qhat1, Qhat2 = feats1 * self.w, feats2 * self.w
 
-        delta = reward + GAMMA * Qhat2 - Qhat1
+        delta = reward + self.gamma * Qhat2 - Qhat1
         grad_w_Qhat1 = feats1
 
-        E = GAMMA * self.lmbd * E + grad_w_Qhat1
-        dw = ALPHA * delta * E
+        E = self.gamma * self.lmbd * E + grad_w_Qhat1
+        dw = self.alpha * delta * E
 
-        w += dw
+        self.w += dw
         state1 = state2
 
-    Q = expand_Q(w)
+    Q = self.expand_Q()
     return Q

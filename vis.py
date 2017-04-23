@@ -24,7 +24,6 @@ def create_surf_plot(X, Y, Z, fig_idx=1):
 from environment import DEALER_RANGE, PLAYER_RANGE
 def plot_Q(Q):
   V = np.max(Q, axis=2)
-  nx, ny = V.shape
   X, Y = np.mgrid[DEALER_RANGE, PLAYER_RANGE]
 
   create_surf_plot(X, Y, V)
