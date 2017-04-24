@@ -63,6 +63,8 @@ class Easy21Env:
 
 
   def observe(self):
+    if not (self.dealer in DEALER_RANGE and self.player in PLAYER_RANGE):
+      return TERMINAL_STATE
     return (self.dealer, self.player)
 
 

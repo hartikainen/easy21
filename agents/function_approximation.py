@@ -7,8 +7,8 @@ from environment import (
   DEALER_RANGE, PLAYER_RANGE
 )
 
-HIT, STICK = ACTIONS
 
+HIT, STICK = ACTIONS
 
 GAMMA = 1
 LAMBDA = 0
@@ -21,7 +21,10 @@ CUBOID_INTERVALS = {
   "action": ((HIT,), (STICK,))
 }
 
-FEATS_SHAPE = tuple(len(s) for s in CUBOID_INTERVALS.values())
+FEATS_SHAPE = tuple(
+  len(CUBOID_INTERVALS[key]) for key in ("dealer", "player", "action")
+)
+
 
 def phi(state, action=None):
   if state == TERMINAL_STATE: return 0
@@ -62,7 +65,7 @@ class FunctionApproximationAgent:
 
   def reset(self):
     self.Q = np.zeros(STATE_SPACE_SHAPE)
-    self.w  = (np.random.rand(*FEATS_SHAPE) - 0.05) * 0.01
+    self.w  = (np.random.rand(*FEATS_SHAPE) - 0.5) * 0.001
 
 
   def policy(self, state):
@@ -70,16 +73,16 @@ class FunctionApproximationAgent:
       return 0.0, None
 
     if np.random.rand() < (1 - self.epsilon):
-      Q, action = max(
+      Qhat, action = max(
         # same as dotproduct in our case
         ((np.sum(phi(state, a) * self.w), a) for a in ACTIONS),
         key=lambda x: x[0]
       )
     else:
       action = np.random.choice(ACTIONS)
-      Q = np.sum(phi(state, action) * self.w)
+      Qhat = np.sum(phi(state, action) * self.w)
 
-    return Q, action
+    return Qhat, action
 
 
   def expand_Q(self):
@@ -100,8 +103,9 @@ class FunctionApproximationAgent:
     N = np.zeros(STATE_SPACE_SHAPE)
 
     for episode in range(1, self.num_episodes+1):
-      E = np.zeros(FEATS_SHAPE)
+      env.reset()
       state1 = env.observe()
+      E = np.zeros(FEATS_SHAPE)
 
       while state1 != TERMINAL_STATE:
         Qhat1, action1 = self.policy(state1)
@@ -111,13 +115,10 @@ class FunctionApproximationAgent:
         feats1 = phi(state1, action1)
         feats2 = phi(state2, action2)
 
-        N[np.where(feats1 == 1)] += 1
 
-        # Qhat1, Qhat2 = feats1 * self.w, feats2 * self.w
-
-        delta = reward + self.gamma * Qhat2 - Qhat1
         grad_w_Qhat1 = feats1
 
+        delta = reward + self.gamma * Qhat2 - Qhat1
         E = self.gamma * self.lmbd * E + grad_w_Qhat1
         dw = self.alpha * delta * E
 
