@@ -1,7 +1,8 @@
 import numpy as np
+import pickle
 
-from utils import epsilon_greedy_policy
-from vis import plot_Q
+from utils import epsilon_greedy_policy, mse
+from vis import plot_V
 from environment import Easy21Env, TERMINAL_STATE, STATE_SPACE_SHAPE
 
 
@@ -11,17 +12,26 @@ LAMBDA = 0
 class SarsaAgent:
   def __init__(self, env, num_episodes=1000,
                gamma=GAMMA, lmbd=LAMBDA,
+               save_error_history=False,
                **kwargs):
     self.num_episodes = num_episodes
     self.env = env
     self.gamma = gamma
     self.lmbd = lmbd
+
+    self.save_error_history = save_error_history
+    if self.save_error_history:
+      with open("./Q_opt.pkl", "rb") as f:
+        self.opt_Q = pickle.load(f)
+
     self.reset()
 
 
   def reset(self):
     self.Q = np.zeros(STATE_SPACE_SHAPE)
 
+    if self.save_error_history:
+      self.error_history = []
 
   def learn(self):
     env = self.env
@@ -61,7 +71,7 @@ class SarsaAgent:
 
         state1 = state2
 
-      if self.lmbd == 0 or self.lmbd == 1:
-        # TODO: save the episodes
-        pass
+      if self.save_error_history:
+        self.error_history.append(mse(self.Q, self.opt_Q))
+
     return Q

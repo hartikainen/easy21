@@ -1,7 +1,7 @@
 import numpy as np
 
 from utils import epsilon_greedy_policy, mse
-from vis import plot_Q
+from vis import plot_V
 from environment import Easy21Env, TERMINAL_STATE, STATE_SPACE_SHAPE
 
 
