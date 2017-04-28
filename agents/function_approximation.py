@@ -51,6 +51,7 @@ class FunctionApproximationAgent:
   def __init__(self, env, num_episodes=1000,
                gamma=GAMMA, lmbd=LAMBDA,
                epsilon=EPSILON, alpha=ALPHA,
+               save_error_history=False,
                **kwargs):
     self.num_episodes = num_episodes
     self.env = env
@@ -60,6 +61,11 @@ class FunctionApproximationAgent:
     self.epsilon = epsilon
     self.alpha = alpha
 
+    self.save_error_history = save_error_history
+    if self.save_error_history:
+      with open("./Q_opt.pkl", "rb") as f:
+        self.opt_Q = pickle.load(f)
+
     self.reset()
 
 
@@ -67,6 +73,8 @@ class FunctionApproximationAgent:
     self.Q = np.zeros(STATE_SPACE_SHAPE)
     self.w  = (np.random.rand(*FEATS_SHAPE) - 0.5) * 0.001
 
+    if self.save_error_history:
+      self.error_history = []
 
   def policy(self, state):
     if state == TERMINAL_STATE:
@@ -115,7 +123,6 @@ class FunctionApproximationAgent:
         feats1 = phi(state1, action1)
         feats2 = phi(state2, action2)
 
-
         grad_w_Qhat1 = feats1
 
         delta = reward + self.gamma * Qhat2 - Qhat1
@@ -125,5 +132,8 @@ class FunctionApproximationAgent:
         self.w += dw
         state1 = state2
 
-    Q = self.expand_Q()
-    return Q
+      if self.save_error_history:
+        self.error_history.append(mse(self.Q, self.opt_Q))
+
+    self.Q = self.expand_Q()
+    return self.Q

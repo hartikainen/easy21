@@ -1,6 +1,7 @@
 import pickle
 import argparse
 import numpy as np
+from distutils.util import strtobool
 
 from environment import Easy21Env, ACTIONS, DEALER_RANGE, PLAYER_RANGE
 from agents import MonteCarloAgent, SarsaAgent, FunctionApproximationAgent
@@ -8,7 +9,7 @@ from vis import plot_V, plot_lambda_mse, plot_learning_curve
 from utils import mse
 
 
-def range_float(s):
+def range_float_type(s):
   """ Custom range float type for arg parser
   """
   try:
@@ -24,10 +25,14 @@ def range_float(s):
     )
 
 
+def bool_type(x):
+  return bool(strtobool(x))
+
+
 parser = argparse.ArgumentParser(
   description="Simple Reinforcement Learning Environment")
 
-parser.add_argument("-v", "--verbose", default=False, type=bool,
+parser.add_argument("-v", "--verbose", default=False, type=bool_type,
                     help="Verbose")
 
 parser.add_argument("-a", "--agent", default="mc",
@@ -38,17 +43,17 @@ parser.add_argument("-a", "--agent", default="mc",
                           "lfa (linear function approximation)"))
 parser.add_argument("--num-episodes", default=1000, type=int,
                     help="Number of episodes")
-parser.add_argument("--lmbd", default=[1.0], type=range_float, help="Lambda")
+parser.add_argument("--lmbd", default=[1.0], type=range_float_type, help="Lambda")
 parser.add_argument("--gamma", default=1, type=float, help="Gamma")
 
-parser.add_argument("--plot-v", default=False, type=bool,
+parser.add_argument("--plot-v", default=False, type=bool_type,
                     help="Plot the value function")
-parser.add_argument("--dump-q", default=False, type=bool,
+parser.add_argument("--dump-q", default=False, type=bool_type,
                     help="Dump the Q values to file")
-parser.add_argument("--plot-lambda-mse", default=False, type=bool,
+parser.add_argument("--plot-lambda-mse", default=False, type=bool_type,
                     help=("Plot mean-squared error compared to the 'true' Q "
                           "values obtained with monte-carlo"))
-parser.add_argument("--plot-learning-curve", default=False, type=bool,
+parser.add_argument("--plot-learning-curve", default=False, type=bool_type,
                     help=("Plot the learning curve of mean-squared error "
                           "compared to the 'true' Q values obtained from "
                           "monte-carlo against episode number"))
@@ -95,8 +100,6 @@ def get_agent_args(args):
 
 Q_OPT_FILE = "./Q_opt.pkl"
 def main(args):
-  print(args.lmbd)
-
   if args.plot_lambda_mse:
     with open(Q_OPT_FILE, "rb") as f:
       Q_opt = pickle.load(f)
@@ -115,18 +118,30 @@ def main(args):
       dump_Q(agent.Q, agent_args)
 
     if args.plot_v:
-      plot_V(agent.Q)
+      plot_file = ("./vis/V_{}_lambda_{}_gamma_{}_episodes_{}.pdf"
+                   "".format(agent_args["agent_type"],
+                             lmbd,
+                             args.gamma,
+                             args.num_episodes))
+      plot_V(agent.Q, save=plot_file)
 
     if args.plot_learning_curve:
       errors = agent.error_history
-      plot_learning_curve(errors, save=True, agent_args=agent_args)
+      plot_file = ("./vis/learning_curve_{}_gamma_{}_episodes_{}.pdf"
+                  "".format(agent_args["agent_type"],
+                            args.gamma,
+                            args.num_episodes))
+      plt = plot_learning_curve(errors, save=plot_file, agent_args=agent_args)
 
     if args.plot_lambda_mse:
-      errors[agent_args["lmbd"]] = mse(agent.Q, Q_opt)
+      errors[lmbd] = mse(agent.Q, Q_opt)
 
   if args.plot_lambda_mse:
+    plot_file = ("./vis/lambda_mse_{}_gamma_{}_episodes_{}.pdf"
+                 "".format(agent_args["agent_type"],
+                           args.gamma, args.num_episodes))
     errors_table = list(zip(*errors.items()))
-    plot_lambda_mse(errors_table)
+    plot_lambda_mse(errors_table, save=plot_file)
 
 if __name__ == "__main__":
   args = parser.parse_args()
