@@ -25,6 +25,9 @@ python easy21.py [-h] [-v VERBOSE] [-a {mc,sarsa,lfa}]
 ```
 See `easy21.py` for more information about the running the game and testing the agents. All the agents are found in the `/agents` folder.
 
+## Easy21 Environment
+The Easy21 environment is implemented `Easy21Env` class found in `environment.py`. The environment keeps track of the game state (dealer card and sum of player cards), and exposes a `step` method, which, given an action (hit or stick), updates its state, and returns the observed state (in our case observation is equivalent to the game state) and reward.
+
 ## Monte-Carlo Control in Easy21
 Monte-Carlo control for Easy21 is implemented in file `agents/monte_carlo.py`. The default implementation uses a time-varying scalar step-size of 1/N(s_t, a_t) and epsilon-greedy exploration strategy with epsilon_t = N_0 / (N_0 + N(S_t)), where N_0 = 100, N(s) is the number of times that state s has been visited, and N(s,a) is the number of times that action a has been selected from state s.
 The figure below presents the optimal value function V* against the game state (player sum and dealer hand).
