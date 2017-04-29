@@ -1,6 +1,7 @@
 import numpy as np
+import pickle
 
-from utils import epsilon_greedy_policy
+from utils import epsilon_greedy_policy, mse
 from vis import plot_V
 from environment import (
   Easy21Env, TERMINAL_STATE, STATE_SPACE_SHAPE, ACTIONS,
@@ -45,6 +46,19 @@ def phi(state, action=None):
       features[:, :, i] = state_features
 
   return features.astype(int)
+
+
+def expand_Q(w):
+  Q = np.zeros(STATE_SPACE_SHAPE)
+
+  for dealer in DEALER_RANGE:
+    for player in PLAYER_RANGE:
+      for action in ACTIONS:
+        state = (dealer, player)
+        feats = phi(state, action)
+        Q[dealer-1, player-1][action] = np.sum(feats * w)
+
+  return Q
 
 
 class FunctionApproximationAgent:
@@ -93,27 +107,13 @@ class FunctionApproximationAgent:
     return Qhat, action
 
 
-  def expand_Q(self):
-    Q = np.zeros(STATE_SPACE_SHAPE)
-
-    for dealer in DEALER_RANGE:
-      for player in PLAYER_RANGE:
-        for action in ACTIONS:
-          state = (dealer, player)
-          feats = phi(state, action)
-          Q[dealer-1, player-1][action] = np.sum(feats * self.w)
-
-    return Q
-
-
   def learn(self):
     env = self.env
-    N = np.zeros(STATE_SPACE_SHAPE)
 
     for episode in range(1, self.num_episodes+1):
       env.reset()
       state1 = env.observe()
-      E = np.zeros(FEATS_SHAPE)
+      E = np.zeros_like(self.w)
 
       while state1 != TERMINAL_STATE:
         Qhat1, action1 = self.policy(state1)
@@ -121,8 +121,6 @@ class FunctionApproximationAgent:
         Qhat2, action2 = self.policy(state2)
 
         feats1 = phi(state1, action1)
-        feats2 = phi(state2, action2)
-
         grad_w_Qhat1 = feats1
 
         delta = reward + self.gamma * Qhat2 - Qhat1
@@ -133,7 +131,8 @@ class FunctionApproximationAgent:
         state1 = state2
 
       if self.save_error_history:
-        self.error_history.append(mse(self.Q, self.opt_Q))
+        self.Q = expand_Q(self.w)
+        self.error_history.append((episode, mse(self.Q, self.opt_Q)))
 
-    self.Q = self.expand_Q()
+    self.Q = expand_Q(self.w)
     return self.Q

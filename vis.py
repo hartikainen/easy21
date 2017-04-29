@@ -41,35 +41,18 @@ def plot_V(Q, save=None, fig_idx=1):
   plt.clf()
 
 
-def plot_lambda_mse(data, save=None, figure_idx=0):
-  if len(data) == 2:
-    X, Y = data
-  else:
-    X, Y = list(range(len(data))), data
-
-  fig = plt.figure(figure_idx)
-  plt.plot(X, Y, 'bo-')
-  plt.title("Mean-squared error vs. 'true' Q values against episode number")
-  plt.ylabel(r'$\sum_{s,a}{(Q(s,a) - Q^{*}(s,a))^2}$', size=18)
-  plt.xlabel(r'$\lambda$', size=18)
-
-  if save is not None:
-    plt.savefig(save, format='pdf', transparent=True)
-  else:
-    plt.show()
-
-  plt.clf()
-
-
-def plot_learning_curve(errors, save=None, agent_args={}, fig_idx=2):
+def plot_learning_curve(learning_curves, save=None, agent_args={}, fig_idx=2):
   fig = plt.figure(fig_idx)
-  ax = fig.add_subplot(111)
-  plot = ax.plot(range(len(errors)), errors, ".", linewidth=2.0)
-  plt.title("Learning curve of mean-squared error against episode number "
-            "{} agent, lambda={}".format(
-              agent_args["agent_type"], agent_args["lmbd"]))
+
+  plt.title("Mean-squared error vs. 'true' Q values against episode number")
   plt.ylabel(r'$\frac{1}{|S||A|}\sum_{s,a}{(Q(s,a) - Q^{*}(s,a))^2}$', size=18)
   plt.xlabel(r'$episode$', size=18)
+
+  for lmbd, D in learning_curves.items():
+    X, Y = zip(*D)
+    plt.plot(X, Y, label="lambda={:.1f}".format(lmbd))
+
+  plt.legend()
 
   if save is not None:
     plt.savefig(save, format='pdf', transparent=True)

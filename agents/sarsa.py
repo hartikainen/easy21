@@ -42,8 +42,7 @@ class SarsaAgent:
     for episode in range(1, self.num_episodes+1):
       env.reset()
       state1 = env.observe()
-      # eligibility traces
-      E = np.zeros(STATE_SPACE_SHAPE)
+      E = np.zeros(STATE_SPACE_SHAPE) # eligibility traces
 
       while state1 != TERMINAL_STATE:
         action1 = epsilon_greedy_policy(Q, N, state1)
@@ -61,18 +60,17 @@ class SarsaAgent:
           idx2 = (dealer2-1, player2-1, action2)
           Q2 = Q[idx2]
 
-        delta = reward + self.gamma * (Q2 - Q1)
-
         N[idx1] += 1
         E[idx1] += 1
 
         alpha = 1.0 / N[idx1]
+        delta = reward + self.gamma * Q2 - Q1
+        E *= self.gamma * self.lmbd
         Q += alpha * delta * E
-        E *= GAMMA * self.lmbd
 
         state1 = state2
 
       if self.save_error_history:
-        self.error_history.append(mse(self.Q, self.opt_Q))
+        self.error_history.append((episode, mse(self.Q, self.opt_Q)))
 
     return Q

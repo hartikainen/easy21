@@ -5,7 +5,7 @@ from distutils.util import strtobool
 
 from environment import Easy21Env, ACTIONS, DEALER_RANGE, PLAYER_RANGE
 from agents import MonteCarloAgent, SarsaAgent, FunctionApproximationAgent
-from vis import plot_V, plot_lambda_mse, plot_learning_curve
+from vis import plot_V, plot_learning_curve
 from utils import mse
 
 
@@ -100,12 +100,10 @@ def get_agent_args(args):
 
 Q_OPT_FILE = "./Q_opt.pkl"
 def main(args):
-  if args.plot_lambda_mse:
-    with open(Q_OPT_FILE, "rb") as f:
-      Q_opt = pickle.load(f)
-      errors = {}
-
   env = Easy21Env()
+
+  if args.plot_learning_curve:
+    learning_curves = {}
 
   for i, lmbd in enumerate(args.lmbd):
     agent_args = get_agent_args(args)
@@ -126,22 +124,13 @@ def main(args):
       plot_V(agent.Q, save=plot_file)
 
     if args.plot_learning_curve:
-      errors = agent.error_history
-      plot_file = ("./vis/learning_curve_{}_gamma_{}_episodes_{}.pdf"
-                  "".format(agent_args["agent_type"],
-                            args.gamma,
-                            args.num_episodes))
-      plt = plot_learning_curve(errors, save=plot_file, agent_args=agent_args)
+      learning_curves[lmbd] = agent.error_history
 
-    if args.plot_lambda_mse:
-      errors[lmbd] = mse(agent.Q, Q_opt)
-
-  if args.plot_lambda_mse:
+  if args.plot_learning_curve:
     plot_file = ("./vis/lambda_mse_{}_gamma_{}_episodes_{}.pdf"
                  "".format(agent_args["agent_type"],
                            args.gamma, args.num_episodes))
-    errors_table = list(zip(*errors.items()))
-    plot_lambda_mse(errors_table, save=plot_file)
+    plot_learning_curve(learning_curves, save=plot_file)
 
 if __name__ == "__main__":
   args = parser.parse_args()
