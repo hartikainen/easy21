@@ -70,7 +70,7 @@ def dump_Q(Q, args):
   filename = ("./{}_{}_lambda_{}_gamma_{}_episodes_{}.pkl"
               "".format(Q_DUMP_BASE_NAME,
                         args["agent_type"], args["lmbd"],
-                        args["gamma"], args["num_episodes"]))
+                        args.get("gamma", None), args["num_episodes"]))
 
   print("dumping Q: ", filename)
 
@@ -81,15 +81,15 @@ def dump_Q(Q, args):
 def get_agent_args(args):
   agent_type = args.agent
   agent_args = {
-    "agent_type": agent_type
+    "agent_type": agent_type,
+    "num_episodes": args.num_episodes
   }
 
   if agent_type == "mc":
     return agent_args
   elif agent_type == "sarsa" or agent_type == "lfa":
     agent_args.update({
-      key: getattr(args, key) for key in
-      ["gamma", "num_episodes"]
+      key: getattr(args, key) for key in ["gamma"]
       if key in args
     })
     agent_args["save_error_history"] = getattr(
