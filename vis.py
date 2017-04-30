@@ -48,9 +48,11 @@ def plot_learning_curve(learning_curves, save=None, agent_args={}, fig_idx=2):
   plt.ylabel(r'$\frac{1}{|S||A|}\sum_{s,a}{(Q(s,a) - Q^{*}(s,a))^2}$', size=18)
   plt.xlabel(r'$episode$', size=18)
 
+  colors = iter(cm.rainbow(np.linspace(0, 1, len(learning_curves))))
   for lmbd, D in learning_curves.items():
     X, Y = zip(*D)
-    plt.plot(X, Y, label="lambda={:.1f}".format(lmbd))
+    plt.plot(X, Y, label="lambda={:.1f}".format(lmbd),
+             linewidth=1.0, color=next(colors))
 
   plt.legend()
 

@@ -65,8 +65,8 @@ class SarsaAgent:
 
         alpha = 1.0 / N[idx1]
         delta = reward + self.gamma * Q2 - Q1
-        E *= self.gamma * self.lmbd
         Q += alpha * delta * E
+        E *= self.gamma * self.lmbd
 
         state1 = state2
 
