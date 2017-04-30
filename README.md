@@ -1,5 +1,5 @@
 # easy21
-This repository implements the assignment requirements for the reinforcement learning course given by David Silver [1]. It implements a reinforcement learning environment and three different agents, namely monte-carlo, sarsa lambda, and linear function approximation, for simple card game called Easy21, presented in [1].
+This repository implements the assignment requirements for the reinforcement learning course given by David Silver [1]. It implements a reinforcement learning environment and three different agents, namely monte-carlo, sarsa lambda, and linear function approximation, for simple card game called Easy21, presented in [2].
 
 
 ## Setting up the environment
@@ -53,8 +53,6 @@ File `agents/sarsa.py` implements a Sarsa(λ) control for Easy21. It uses the sa
 
 As with any other situation, also in Easy21, bootstrapping reduces the variance of the learned policy, with the cost of increased bias. The Sarsa(λ) agent learns reasonable policy faster (i.e. in smaller number of episodes) than Monte-Carlo agent. I a game as simple as Easy21, however, it is feasible to run enough episodes for the Monte-Carlo agent to converge to the optimal unbiased policy.
 
-
-### Bootstrapping in Easy21 vs Blackjack
 The episodes in Easy21 on average last longer than in traditional Blackjack game because of the subtractive effect of red cards. Because of this, boostrapping is likely to be more useful in Easy21 than it would be in traditional Blackjack game.
 
 
@@ -85,4 +83,5 @@ When using dynamic step-size α, as in the Sarsa(λ) section above, we can see t
 
 \*\* the actual running time is actually worse than with Sarsa(λ) because my function approximation implementation does not fully utilize numpy vectorization
 
-[1] http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/Easy21-Johannes.pdf
+[1] http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html
+[2] http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/Easy21-Johannes.pdf
