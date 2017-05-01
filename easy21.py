@@ -4,7 +4,9 @@ import numpy as np
 from distutils.util import strtobool
 
 from environment import Easy21Env, ACTIONS, DEALER_RANGE, PLAYER_RANGE
-from agents import MonteCarloAgent, SarsaAgent, FunctionApproximationAgent
+from agents import (
+  MonteCarloAgent, SarsaAgent, FunctionApproximationAgent, PolicyGradientAgent
+)
 from vis import plot_V, plot_learning_curve
 from utils import mse
 
@@ -36,7 +38,7 @@ parser.add_argument("-v", "--verbose", default=False, type=bool_type,
                     help="Verbose")
 
 parser.add_argument("-a", "--agent", default="mc",
-                    choices=['mc', 'sarsa', 'lfa'],
+                    choices=['mc', 'sarsa', 'lfa', 'pg'],
                     help=("Agent Type: "
                           "mc (monte carlo), "
                           "sarsa, "
@@ -62,7 +64,8 @@ parser.add_argument("--plot-learning-curve", default=False, type=bool_type,
 AGENTS = {
   "mc": MonteCarloAgent,
   "sarsa": SarsaAgent,
-  "lfa": FunctionApproximationAgent
+  "lfa": FunctionApproximationAgent,
+  "pg": PolicyGradientAgent
 }
 
 Q_DUMP_BASE_NAME = "Q_dump"
