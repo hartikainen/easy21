@@ -13,6 +13,8 @@ class TwoLayerNet:
 
 
   def forward(self, X):
+    if len(X.shape) == 1: X = X.reshape(-1, X.shape[0])
+
     W1, b1 = self.params['W1'], self.params['b1']
     W2, b2 = self.params['W2'], self.params['b2']
     N, D = 1, len(X)
@@ -29,6 +31,8 @@ class TwoLayerNet:
 
 
   def backward(self, X, y, probs):
+    if len(X.shape) == 1: X = X.reshape(-1, X.shape[0])
+
     W1, b1 = self.params['W1'], self.params['b1']
     W2, b2 = self.params['W2'], self.params['b2']
     N, D = 1, len(X)
@@ -106,10 +110,12 @@ class PolicyGradientAgent:
         E.append([state, action, reward])
         state = state_
 
-      for state, action, reward in E:
-        probs = net.forward(s)
-        target = A * 1 / probs[action]
+      G = np.cumsum([e[2] for e in reversed(E)])[::-1]
+      for (state, action, reward), G_t in zip(E, G):
+        probs = net.forward(state)
+        target = G_t * 1 / probs[:, action]
 
-        grads = net.backward(input, target, probs)
+        grads = net.backward(state, target, probs)
         net.update_params(grads)
+        from nose.tools import set_trace; set_trace()
         break
