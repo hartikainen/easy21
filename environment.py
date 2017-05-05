@@ -65,7 +65,7 @@ class Easy21Env:
   def observe(self):
     if not (self.dealer in DEALER_RANGE and self.player in PLAYER_RANGE):
       return TERMINAL_STATE
-    return (self.dealer, self.player)
+    return np.array((self.dealer, self.player))
 
 
   def step(self, action):
@@ -101,4 +101,4 @@ class Easy21Env:
     else:
       raise ValueError("Action not in action space")
 
-    return next_state, reward
+    return np.array(next_state), reward

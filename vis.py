@@ -23,7 +23,7 @@ def create_surf_plot(X, Y, Z, fig_idx=1):
 
 
 from environment import DEALER_RANGE, PLAYER_RANGE
-def plot_V(Q, save=None, fig_idx=1):
+def plot_V(Q, save=None, fig_idx=0):
   V = np.max(Q, axis=2)
   X, Y = np.mgrid[DEALER_RANGE, PLAYER_RANGE]
 
@@ -62,3 +62,16 @@ def plot_learning_curve(learning_curves, save=None, agent_args={}, fig_idx=2):
     plt.show()
 
   plt.clf()
+
+def plot_pg_rewards(mean_rewards, fig_idx=3):
+  fig = plt.figure(fig_idx)
+
+  plt.title("Average results for Policy Gradient")
+  plt.ylabel(r'$reward$', size=18)
+  plt.xlabel(r'$episode$', size=18)
+
+  Y = mean_rewards
+  X = range(1, len(Y)+1)
+
+  plt.plot(X, Y, linewidth=1.0)
+  plt.show()

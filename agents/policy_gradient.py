@@ -27,28 +27,32 @@ class TwoLayerNet:
     sum_exp_scores = np.sum(exp_scores, axis=1, keepdims=True)
     probs = exp_scores / sum_exp_scores
 
-    return probs
+    cache = (probs, h1, z)
+
+    return probs, cache
 
 
-  def backward(self, X, y, probs):
+  def backward(self, X, y, cache):
     if len(X.shape) == 1: X = X.reshape(-1, X.shape[0])
+
+    probs, h1, z = cache
 
     W1, b1 = self.params['W1'], self.params['b1']
     W2, b2 = self.params['W2'], self.params['b2']
     N, D = 1, len(X)
 
-    dscores = probs
+    dscores = probs.copy()
     dscores[np.arange(N), y] -= 1.0
     dscores /= float(N)
 
-    dW2 = np.dot(h1.T, dscores) + reg * W2
+    dW2 = np.dot(h1.T, dscores) + W2
     db2 = np.sum(dscores, axis=0)
 
     dh1 = np.dot(dscores, W2.T)
 
     dz = (z > 0.0) * dh1
 
-    dW1 = np.dot(X.T, dz) + reg * W1
+    dW1 = np.dot(X.T, dz) + W1
     db1 = np.sum(dz, axis=0)
 
     grads = {
@@ -56,11 +60,11 @@ class TwoLayerNet:
       'W1': dW1, 'b1': db1
     }
 
-    return loss, grads
+    return grads
 
 
-  def update_params(grads):
-    learning_rate = 1e-3
+  def update_params(self, grads):
+    learning_rate = 1e-4
 
     for param in self.params.keys():
       self.params[param] -= learning_rate * grads[param]
@@ -80,22 +84,18 @@ class PolicyGradientAgent:
     self.gamma = gamma
     self.lmbd = lmbd
 
-    self.save_error_history = save_error_history
-    if self.save_error_history:
-      with open("./Q_opt.pkl", "rb") as f:
-        self.opt_Q = pickle.load(f)
-
     self.reset()
 
 
   def reset(self):
-    if self.save_error_history:
-      self.error_history = []
+    self.reward_history = []
 
 
   def learn(self):
     env = self.env
     net = TwoLayerNet(2, 20, 2)
+
+    tmp_rewards = []
 
     for episode in range(1, self.num_episodes+1):
       env.reset()
@@ -103,19 +103,23 @@ class PolicyGradientAgent:
       E = [] # experiences
 
       while state != TERMINAL_STATE:
-        probs = net.forward(state)
+        probs, cache = net.forward(state)
         action = np.argmax(probs)
         state_, reward = env.step(action)
 
-        E.append([state, action, reward])
+        E.append([state, action, reward, cache])
         state = state_
 
       G = np.cumsum([e[2] for e in reversed(E)])[::-1]
-      for (state, action, reward), G_t in zip(E, G):
-        probs = net.forward(state)
-        target = G_t * 1 / probs[:, action]
-
-        grads = net.backward(state, target, probs)
+      for (state, action, reward, probs), G_t in zip(E, G):
+        grads = net.backward(state, action, cache)
+        grads = { k: v * G_t for k, v in grads.items() }
         net.update_params(grads)
-        from nose.tools import set_trace; set_trace()
-        break
+
+      tmp_rewards.append(sum(e[2] for e in E))
+
+      if episode % 1000 == 0:
+        self.reward_history.append(np.mean(tmp_rewards))
+        tmp_rewards = []
+
+    return self.reward_history

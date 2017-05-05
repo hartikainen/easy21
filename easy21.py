@@ -7,7 +7,7 @@ from environment import Easy21Env, ACTIONS, DEALER_RANGE, PLAYER_RANGE
 from agents import (
   MonteCarloAgent, SarsaAgent, FunctionApproximationAgent, PolicyGradientAgent
 )
-from vis import plot_V, plot_learning_curve
+from vis import plot_V, plot_learning_curve, plot_pg_rewards
 from utils import mse
 
 
@@ -114,6 +114,10 @@ def main(args):
     agent = AGENTS[args.agent](env, **agent_args)
 
     agent.learn()
+
+    if agent_args["agent_type"] == "pg":
+      plot_pg_rewards(agent.reward_history)
+      return
 
     if args.dump_q:
       dump_Q(agent.Q, agent_args)
