@@ -83,5 +83,5 @@ When using dynamic step-size α, as in the Sarsa(λ) section above, we can see t
 
 \*\* the actual running time is actually worse than with Sarsa(λ) because my function approximation implementation does not fully utilize numpy vectorization
 
-[1] http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html
-[2] http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/Easy21-Johannes.pdf
+[1]http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html
+[2]http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/Easy21-Johannes.pdf
