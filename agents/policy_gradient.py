@@ -1,7 +1,7 @@
 import numpy as np
 
 from utils import epsilon_greedy_policy
-from environment import TERMINAL_STATE, STATE_SPACE_SHAPE
+from environment import ACTIONS, TERMINAL_STATE, STATE_SPACE_SHAPE
 
 class TwoLayerNet:
   def __init__(self, input_size, hidden_size, output_size, std=1e-4):
@@ -64,7 +64,7 @@ class TwoLayerNet:
 
 
   def update_params(self, grads):
-    learning_rate = 1e-4
+    learning_rate = 5e-4
 
     for param in self.params.keys():
       self.params[param] -= learning_rate * grads[param]
@@ -103,8 +103,8 @@ class PolicyGradientAgent:
       E = [] # experiences
 
       while state != TERMINAL_STATE:
-        probs, cache = net.forward(state)
-        action = np.argmax(probs)
+        (probs,), cache = net.forward(state)
+        action = np.random.choice(ACTIONS, p=probs)
         state_, reward = env.step(action)
 
         E.append([state, action, reward, cache])
