@@ -84,7 +84,7 @@ When using dynamic step-size α, as in the Sarsa(λ) section above, we can see t
 \*\* the actual running time is actually worse than with Sarsa(λ) because my function approximation implementation does not fully utilize numpy vectorization
 
 ## Policy Gradient in Easy21
-File `agents/policy_gradient.py` implements a simple two layer feed forward neural network and a policy gradient agent that utilizes the network. The network used by the agent uses 20 hidden neurons with ReLU non-linearities, and learning rate α=5*10<sup>-4</sup>. The weights of the network are initialized from guassian distribution with mean μ=0 and standard deviation σ=10<sup>-4</sup>, and biases are initially set to 0. The figure below represents the running average (with 1000 episode window) of the reward received by the policy gradient agent over total of 100,000 episodes.
+File `agents/policy_gradient.py` implements a simple two layer feed forward neural network and a policy gradient agent that utilizes the network. The network used by the agent uses 20 hidden neurons with ReLU non-linearities, and learning rate α=5*10<sup>-4</sup>. The weights of the network are initialized from gaussian distribution with mean μ=0 and standard deviation σ=10<sup>-4</sup>, and biases are initially set to 0. The figure below represents the running average (with 1000 episode window) of the reward received by the policy gradient agent over total of 100,000 episodes.
 
 ![alt text](https://github.com/hartikainen/easy21/blob/master/vis/policy_gradient_rewards_episodes_100000.png)
 

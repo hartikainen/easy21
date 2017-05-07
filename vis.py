@@ -66,9 +66,9 @@ def plot_learning_curve(learning_curves, save=None, agent_args={}, fig_idx=2):
 def plot_pg_rewards(mean_rewards, save=None, fig_idx=3):
   fig = plt.figure(fig_idx)
 
-  plt.title("Average results for Policy Gradient")
-  plt.ylabel(r'$reward$', size=18)
-  plt.xlabel(r'$episode$', size=18)
+  plt.title("Policy Gradient running average rewards (1000 epsiode window)")
+  plt.ylabel(r'average reward', size=18)
+  plt.xlabel(r'episode', size=18)
 
   Y = mean_rewards
   X = range(1, len(Y)+1)
