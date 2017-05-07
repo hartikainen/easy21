@@ -63,7 +63,7 @@ def plot_learning_curve(learning_curves, save=None, agent_args={}, fig_idx=2):
 
   plt.clf()
 
-def plot_pg_rewards(mean_rewards, fig_idx=3):
+def plot_pg_rewards(mean_rewards, save=None, fig_idx=3):
   fig = plt.figure(fig_idx)
 
   plt.title("Average results for Policy Gradient")
@@ -74,4 +74,10 @@ def plot_pg_rewards(mean_rewards, fig_idx=3):
   X = range(1, len(Y)+1)
 
   plt.plot(X, Y, linewidth=1.0)
-  plt.show()
+
+  if save is not None:
+    plt.savefig(save, format='pdf', transparent=True)
+  else:
+    plt.show()
+
+  plt.clf()

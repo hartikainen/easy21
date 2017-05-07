@@ -116,7 +116,9 @@ def main(args):
     agent.learn()
 
     if agent_args["agent_type"] == "pg":
-      plot_pg_rewards(agent.reward_history)
+      plot_file = ("./vis/policy_gradient_rewards_episodes_{}.pdf"
+                   "".format(args.num_episodes))
+      plot_pg_rewards(agent.reward_history, save=plot_file)
       return
 
     if args.dump_q:
