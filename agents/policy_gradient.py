@@ -1,3 +1,4 @@
+from collections import deque
 import numpy as np
 
 from utils import epsilon_greedy_policy
@@ -94,8 +95,7 @@ class PolicyGradientAgent:
   def learn(self):
     env = self.env
     net = TwoLayerNet(2, 20, 2)
-
-    tmp_rewards = []
+    reward_window = deque([0] * 1000, 1000)
 
     for episode in range(1, self.num_episodes+1):
       env.reset()
@@ -116,10 +116,7 @@ class PolicyGradientAgent:
         grads = { k: v * G_t for k, v in grads.items() }
         net.update_params(grads)
 
-      tmp_rewards.append(sum(e[2] for e in E))
-
-      if episode % 1000 == 0:
-        self.reward_history.append(np.mean(tmp_rewards))
-        tmp_rewards = []
+      reward_window.append(sum(e[2] for e in E))
+      self.reward_history.append(np.mean(reward_window))
 
     return self.reward_history
