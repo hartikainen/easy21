@@ -4,6 +4,7 @@ import numpy as np
 from utils import epsilon_greedy_policy
 from environment import ACTIONS, TERMINAL_STATE, STATE_SPACE_SHAPE
 
+
 class TwoLayerNet:
   def __init__(self, input_size, hidden_size, output_size, std=1e-4):
     self.params = {}

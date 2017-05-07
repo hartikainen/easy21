@@ -1,5 +1,5 @@
 # easy21
-This repository implements the assignment requirements for the reinforcement learning course given by David Silver [1]. It implements a reinforcement learning environment and three different agents, namely monte-carlo, sarsa lambda, and linear function approximation, for simple card game called Easy21, presented in [2].
+This repository implements the assignment requirements for the reinforcement learning course given by David Silver [1]. It implements a reinforcement learning environment and four different agents, namely monte-carlo, sarsa lambda, linear value function approximation, and neural network policy gradient, for simple card game called Easy21, presented in [2].
 
 
 ## Setting up the environment
@@ -82,6 +82,11 @@ When using dynamic step-size α, as in the Sarsa(λ) section above, we can see t
 ![alt text](https://github.com/hartikainen/easy21/blob/master/vis/V_lfa_identity_features_dynamic_alpha_lambda_0.0_gamma_1.0_episodes_50000.png)
 
 \*\* the actual running time is actually worse than with Sarsa(λ) because my function approximation implementation does not fully utilize numpy vectorization
+
+## Policy Gradient in Easy21
+File `agents/policy_gradient.py` implements a simple two layer feed forward neural network and a policy gradient agent that utilizes the network. The network used by the agent uses 20 hidden neurons with ReLU non-linearities, and learning rate α=5*10<sup>-4</sup>. The weights of the network are initialized from guassian distribution with mean μ=0 and standard deviation σ=10<sup>-4</sup>, and biases are initially set to 0. The figure below represents the running average (with 1000 episode window) of the reward received by the policy gradient agent over total of 100,000 episodes.
+
+![alt text](https://github.com/hartikainen/easy21/blob/master/vis/policy_gradient_rewards_episodes_100000.png)
 
 [1]http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html
 [2]http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/Easy21-Johannes.pdf
